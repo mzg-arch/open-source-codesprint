@@ -105,3 +105,10 @@ temp/
 # Reports
 # ===============================
 report.*.json
+
+
+# AI tooling
+.claude/
+.cursor/
+.devin/
+.agents/
