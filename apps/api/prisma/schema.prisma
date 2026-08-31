@@ -8,13 +8,16 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  username  String   @unique
-  passwordHash  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id           String       @id @default(cuid())
+  email        String       @unique
+  username     String       @unique
+  passwordHash String
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  submissions  Submission[]
 }
+
 
 enum Difficulty {
   EASY
@@ -38,6 +41,7 @@ model Problem {
   examples    ProblemExample[]
   starterCode StarterCode[]
   testCases   TestCase[]
+  submissions Submission[]
 }
 
 model ProblemExample {
@@ -70,3 +74,32 @@ model TestCase {
 
   problem Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
 }
+
+
+enum SubmissionStatus {
+  PENDING
+  RUNNING
+  ACCEPTED
+  WRONG_ANSWER
+  RUNTIME_ERROR
+  TIME_LIMIT_EXCEEDED
+  COMPILE_ERROR
+}
+
+model Submission {
+  id          String           @id @default(cuid())
+  userId      String
+  problemId   String
+  language    String
+  sourceCode  String
+  status      SubmissionStatus @default(PENDING)
+  runtimeMs   Int?
+  memoryKb    Int?
+  output      String?
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  problem     Problem          @relation(fields: [problemId], references: [id], onDelete: Cascade)
+}
+
