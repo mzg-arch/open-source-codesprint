@@ -15,3 +15,23 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+enum Difficulty {
+  EASY
+  MEDIUM
+  HARD
+}
+
+model Problem {
+  id          String     @id @default(cuid())
+  title       String
+  slug        String     @unique
+  description String
+  difficulty  Difficulty
+  constraints String?
+  timeLimit   Int        @default(2000)
+  memoryLimit Int        @default(256)
+  isPublished Boolean    @default(false)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
