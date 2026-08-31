@@ -34,4 +34,39 @@ model Problem {
   isPublished Boolean    @default(false)
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
+
+  examples    ProblemExample[]
+  starterCode StarterCode[]
+  testCases   TestCase[]
+}
+
+model ProblemExample {
+  id          String  @id @default(cuid())
+  problemId   String
+  input       String
+  output      String
+  explanation String?
+
+  problem Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+}
+
+model StarterCode {
+  id        String @id @default(cuid())
+  problemId String
+  language  String
+  code      String
+
+  problem Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+
+  @@unique([problemId, language])
+}
+
+model TestCase {
+  id             String  @id @default(cuid())
+  problemId      String
+  input          String
+  expectedOutput String
+  isHidden       Boolean @default(true)
+
+  problem Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
 }
