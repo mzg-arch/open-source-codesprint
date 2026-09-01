@@ -20,15 +20,13 @@ export class AuthService {
   async register(registerDto: RegisterDto) {
     const { email, username, password } = registerDto;
 
-    const existingEmail =
-      await this.usersService.findByEmail(email);
+    const existingEmail = await this.usersService.findByEmail(email);
 
     if (existingEmail) {
       throw new BadRequestException('Email already exists');
     }
 
-    const existingUsername =
-      await this.usersService.findByUsername(username);
+    const existingUsername = await this.usersService.findByUsername(username);
 
     if (existingUsername) {
       throw new BadRequestException('Username already exists');
@@ -59,10 +57,7 @@ export class AuthService {
       throw new UnauthorizedException('Invalid email or password');
     }
 
-    const passwordMatches = await bcrypt.compare(
-      password,
-      user.passwordHash,
-    );
+    const passwordMatches = await bcrypt.compare(password, user.passwordHash);
 
     if (!passwordMatches) {
       throw new UnauthorizedException('Invalid email or password');

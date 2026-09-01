@@ -22,9 +22,7 @@ type AuthenticatedRequest = {
 
 @Controller('submissions')
 export class SubmissionsController {
-  constructor(
-    private readonly submissionsService: SubmissionsService,
-  ) {}
+  constructor(private readonly submissionsService: SubmissionsService) {}
 
   @UseGuards(JwtAuthGuard)
   @Post()
@@ -32,29 +30,18 @@ export class SubmissionsController {
     @Req() request: AuthenticatedRequest,
     @Body() dto: CreateSubmissionDto,
   ) {
-    return this.submissionsService.create(
-      request.user.id,
-      dto,
-    );
+    return this.submissionsService.create(request.user.id, dto);
   }
 
   @UseGuards(JwtAuthGuard)
   @Get('me')
   findMine(@Req() request: AuthenticatedRequest) {
-    return this.submissionsService.findMine(
-      request.user.id,
-    );
+    return this.submissionsService.findMine(request.user.id);
   }
 
   @UseGuards(JwtAuthGuard)
   @Get(':id')
-  findById(
-    @Req() request: AuthenticatedRequest,
-    @Param('id') id: string,
-  ) {
-    return this.submissionsService.findById(
-      id,
-      request.user.id,
-    );
+  findById(@Req() request: AuthenticatedRequest, @Param('id') id: string) {
+    return this.submissionsService.findById(id, request.user.id);
   }
 }

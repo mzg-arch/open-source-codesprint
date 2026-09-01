@@ -9,7 +9,7 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { Difficulty } from '@prisma/client';
+import { Difficulty } from '@codesprint/database';
 
 class ProblemExampleDto {
   @IsString()

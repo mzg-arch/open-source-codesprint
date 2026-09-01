@@ -1,35 +1,31 @@
-import {
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateSubmissionDto } from './dto/create-submission.dto';
+import { InjectQueue } from '@nestjs/bullmq';
+import { Queue } from 'bullmq';
 
 @Injectable()
 export class SubmissionsService {
   constructor(
     private readonly prisma: PrismaService,
+
+    @InjectQueue('submission')
+    private readonly submissionQueue: Queue,
   ) {}
 
-  async create(
-    userId: string,
-    dto: CreateSubmissionDto,
-  ) {
-    const problem =
-      await this.prisma.problem.findUnique({
-        where: {
-          slug: dto.problemSlug,
-        },
-      });
+  async create(userId: string, dto: CreateSubmissionDto) {
+    const problem = await this.prisma.problem.findUnique({
+      where: {
+        slug: dto.problemSlug,
+      },
+    });
 
     if (!problem) {
-      throw new NotFoundException(
-        'Problem not found',
-      );
+      throw new NotFoundException('Problem not found');
     }
 
-    return this.prisma.submission.create({
+    const submission = await this.prisma.submission.create({
       data: {
         userId,
         problemId: problem.id,
@@ -37,6 +33,12 @@ export class SubmissionsService {
         sourceCode: dto.sourceCode,
       },
     });
+
+    await this.submissionQueue.add('judge', {
+      submissionId: submission.id,
+    });
+
+    return submission;
   }
 
   findMine(userId: string) {
@@ -59,10 +61,7 @@ export class SubmissionsService {
     });
   }
 
-  findById(
-    id: string,
-    userId: string,
-  ) {
+  findById(id: string, userId: string) {
     return this.prisma.submission.findFirst({
       where: {
         id,

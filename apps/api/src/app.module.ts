@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { BullModule } from '@nestjs/bullmq';
 
 import { PrismaModule } from './prisma/prisma.module';
 import { HealthModule } from './health/health.module';
@@ -13,6 +14,17 @@ import { SubmissionsModule } from './submissions/submissions.module';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+
+    BullModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        connection: {
+          host: configService.get<string>('REDIS_HOST') ?? 'localhost',
+          port: Number(configService.get<string>('REDIS_PORT') ?? 6379),
+        },
+      }),
+    }),
+
     PrismaModule,
     HealthModule,
     UsersModule,
