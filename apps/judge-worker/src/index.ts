@@ -17,9 +17,7 @@ const worker = new Worker(
       submissionId: string;
     };
 
-    console.log(
-      `Picked up submission: ${submissionId}`,
-    );
+    console.log(`Picked up submission: ${submissionId}`);
 
     const submission =
       await prisma.submission.findUnique({
@@ -62,8 +60,14 @@ const worker = new Worker(
       return;
     }
 
+    let totalRuntimeMs = 0;
+
     try {
       for (const testCase of submission.problem.testCases) {
+        console.log(`Running test case: ${testCase.id}`);
+
+        const startedAt = Date.now();
+
         const result = await runJavascript({
           sourceCode: submission.sourceCode,
           input: testCase.input,
@@ -71,6 +75,12 @@ const worker = new Worker(
           memoryLimitMb:
             submission.problem.memoryLimit,
         });
+
+        const runtimeMs = Date.now() - startedAt;
+
+        totalRuntimeMs += runtimeMs;
+
+        console.log('Docker execution finished:', result);
 
         if (result.stderr) {
           await prisma.submission.update({
@@ -80,6 +90,7 @@ const worker = new Worker(
             data: {
               status:
                 SubmissionStatus.RUNTIME_ERROR,
+              runtimeMs: totalRuntimeMs,
               output: result.stderr,
             },
           });
@@ -98,6 +109,7 @@ const worker = new Worker(
             data: {
               status:
                 SubmissionStatus.WRONG_ANSWER,
+              runtimeMs: totalRuntimeMs,
               output: result.stdout,
             },
           });
@@ -112,8 +124,14 @@ const worker = new Worker(
         },
         data: {
           status: SubmissionStatus.ACCEPTED,
+          runtimeMs: totalRuntimeMs,
+          output: null,
         },
       });
+
+      console.log(
+        `Submission ${submission.id} accepted in ${totalRuntimeMs}ms`,
+      );
     } catch (error) {
       const message =
         error instanceof Error
@@ -131,56 +149,17 @@ const worker = new Worker(
           status: isTimeout
             ? SubmissionStatus.TIME_LIMIT_EXCEEDED
             : SubmissionStatus.RUNTIME_ERROR,
+          runtimeMs:
+            totalRuntimeMs > 0
+              ? totalRuntimeMs
+              : null,
           output: message,
         },
       });
 
-      for (const testCase of submission.problem.testCases) {
-  console.log(`Starting test case ${testCase.id}`);
-  console.log(`Input: ${testCase.input}`);
-
-  const result = await runJavascript({
-    sourceCode: submission.sourceCode,
-    input: testCase.input,
-    timeLimitMs: submission.problem.timeLimit,
-    memoryLimitMb: submission.problem.memoryLimit,
-  });
-
-  console.log('Runner returned:', result);
-
-  if (result.stderr) {
-    await prisma.submission.update({
-      where: {
-        id: submission.id,
-      },
-      data: {
-        status: SubmissionStatus.RUNTIME_ERROR,
-        output: result.stderr,
-      },
-    });
-
-    return;
-  }
-
-  if (
-    result.stdout.trim() !==
-    testCase.expectedOutput.trim()
-  ) {
-    console.log('Wrong answer');
-
-    await prisma.submission.update({
-      where: {
-        id: submission.id,
-      },
-      data: {
-        status: SubmissionStatus.WRONG_ANSWER,
-        output: result.stdout,
-      },
-    });
-
-    return;
-  }
-}
+      console.error(
+        `Submission ${submission.id} failed: ${message}`,
+      );
     }
   },
   {
@@ -205,8 +184,11 @@ worker.on('failed', (job, error) => {
 });
 
 async function shutdown() {
+  console.log('Shutting down judge worker...');
+
   await worker.close();
   await prisma.$disconnect();
+
   process.exit(0);
 }
 
