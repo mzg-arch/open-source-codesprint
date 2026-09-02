@@ -1,26 +1,127 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #1f1b20;
+  --foreground: #f3f3f3;
+  --surface: #2a242b;
+  --surface-raised: #302a32;
+  --surface-soft: #362f38;
+  --input: #211c22;
+  --border: #4b4450;
+  --border-strong: #5b5260;
+  --muted: #a7a1ac;
+  --muted-strong: #d0cbd2;
+  --primary: #72e2b6;
+  --primary-hover: #86ebc2;
+  --primary-strong: #9af0ce;
+  --secondary: #8b6dff;
+  --cyan: #72e2b6;
+  --success: #72e2b6;
+  --warning: #e8ba68;
+  --danger: #ff8798;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: "Segoe UI", Arial, Helvetica, sans-serif;
+  --font-mono: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  border-color: var(--border);
+}
+
+html {
+  color-scheme: dark;
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
+  min-width: 320px;
+  background-color: var(--background);
+  background-image:
+    radial-gradient(circle at 50% -12%, rgba(139, 109, 255, 0.08), transparent 30rem),
+    linear-gradient(rgba(167, 161, 172, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(167, 161, 172, 0.035) 1px, transparent 1px);
+  background-size: auto, 42px 42px, 42px 42px;
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: "Segoe UI", Arial, Helvetica, sans-serif;
+}
+
+::selection {
+  background: rgba(114, 226, 182, 0.32);
+  color: #121012;
+}
+
+button,
+a,
+input,
+select,
+textarea {
+  outline-color: var(--primary);
+}
+
+button,
+a,
+select {
+  cursor: pointer;
+}
+
+.app-grid {
+  background-color: var(--background);
+  background-image:
+    radial-gradient(circle at 62% -10%, rgba(139, 109, 255, 0.09), transparent 31rem),
+    linear-gradient(rgba(167, 161, 172, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(167, 161, 172, 0.04) 1px, transparent 1px);
+  background-size: auto, 42px 42px, 42px 42px;
+}
+
+.grid-background {
+  background-image:
+    linear-gradient(rgba(167, 161, 172, 0.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(167, 161, 172, 0.055) 1px, transparent 1px);
+  background-size: 42px 42px;
+  mask-image: linear-gradient(to bottom, black 0%, black 70%, transparent 100%);
+}
+
+.panel-glow {
+  box-shadow:
+    0 18px 48px rgba(10, 7, 11, 0.2),
+    0 0 28px rgba(139, 109, 255, 0.035);
+}
+
+.text-gradient {
+  background: linear-gradient(105deg, #f3f3f3 8%, #72e2b6 54%, #9e87ff 96%);
+  background-clip: text;
+  color: transparent;
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-up {
+  animation: fade-up 420ms ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

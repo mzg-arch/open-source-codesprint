@@ -1,124 +1,66 @@
-import Link from 'next/link';
+import type { Metadata } from "next";
+import { ListChecks, Sparkles } from "lucide-react";
 
-type Problem = {
-  id: string;
-  title: string;
-  slug: string;
-  difficulty: 'EASY' | 'MEDIUM' | 'HARD';
-  createdAt: string;
+import { Footer } from "@/components/layout/Footer";
+import { Navbar } from "@/components/layout/Navbar";
+import { ProblemList } from "@/components/problem/ProblemList";
+import { getApiUrl } from "@/lib/api";
+import type { ProblemSummary } from "@/types/problem";
+
+export const metadata: Metadata = {
+  title: "Problems",
+  description: "Browse coding challenges and submit solutions to CodeSprint.",
 };
 
-async function getProblems(): Promise<Problem[]> {
-  const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001'}/problems`,
-    {
-      cache: 'no-store',
-    },
-  );
+async function getProblems(): Promise<ProblemSummary[]> {
+  const response = await fetch(`${getApiUrl()}/problems`, {
+    cache: "no-store",
+  });
 
   if (!response.ok) {
-    throw new Error('Failed to load problems');
+    throw new Error("Failed to load problems.");
   }
 
   return response.json();
-}
-
-function difficultyLabel(
-  difficulty: Problem['difficulty'],
-) {
-  switch (difficulty) {
-    case 'EASY':
-      return 'Easy';
-    case 'MEDIUM':
-      return 'Medium';
-    case 'HARD':
-      return 'Hard';
-  }
 }
 
 export default async function ProblemsPage() {
   const problems = await getProblems();
 
   return (
-    <main className="min-h-screen bg-black text-white">
-      <nav className="border-b border-white/10">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-5">
-          <Link
-            href="/"
-            className="text-xl font-bold tracking-tight"
-          >
-            CodeSprint
-          </Link>
-
-          <div className="flex items-center gap-6 text-sm text-zinc-300">
-            <Link
-              href="/problems"
-              className="text-white"
-            >
-              Problems
-            </Link>
-
-            <Link
-              href="/login"
-              className="transition hover:text-white"
-            >
-              Sign In
-            </Link>
+    <main className="app-grid min-h-screen">
+      <Navbar />
+      <section className="relative overflow-hidden border-b border-[var(--border)]">
+        <div className="grid-background absolute inset-0 opacity-50" />
+        <div className="relative mx-auto max-w-7xl px-6 py-14 sm:py-18">
+          <div className="flex size-10 items-center justify-center rounded-md border border-[var(--border-strong)] bg-[rgba(114,226,182,0.08)] text-[var(--primary)]">
+            <ListChecks className="size-5" />
           </div>
-        </div>
-      </nav>
-
-      <section className="mx-auto max-w-7xl px-6 py-12">
-        <div>
-          <p className="text-sm font-semibold uppercase tracking-widest text-zinc-500">
-            Practice
-          </p>
-
-          <h1 className="mt-3 text-4xl font-bold">
-            Problems
-          </h1>
-
-          <p className="mt-3 max-w-2xl text-zinc-400">
-            Practice coding challenges and submit
-            solutions to the CodeSprint judge.
-          </p>
-        </div>
-
-        <div className="mt-10 overflow-hidden rounded-2xl border border-white/10">
-          <div className="grid grid-cols-[1fr_160px] border-b border-white/10 bg-zinc-950 px-6 py-4 text-sm text-zinc-500">
-            <span>Problem</span>
-            <span>Difficulty</span>
-          </div>
-
-          {problems.length === 0 ? (
-            <div className="px-6 py-12 text-center text-zinc-500">
-              No problems available yet.
+          <div className="mt-6 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--secondary)]">
+                Practice library
+              </p>
+              <h1 className="mt-3 text-4xl font-semibold tracking-tight sm:text-5xl">
+                Choose your next challenge.
+              </h1>
+              <p className="mt-4 max-w-2xl leading-7 text-[var(--muted)]">
+                Work through published problems and send your solution through
+                the secure CodeSprint judge.
+              </p>
             </div>
-          ) : (
-            problems.map((problem) => (
-              <Link
-                key={problem.id}
-                href={`/problems/${problem.slug}`}
-                className="grid grid-cols-[1fr_160px] items-center border-b border-white/10 px-6 py-5 transition last:border-b-0 hover:bg-white/[0.03]"
-              >
-                <div>
-                  <p className="font-medium">
-                    {problem.title}
-                  </p>
-
-                  <p className="mt-1 text-sm text-zinc-500">
-                    {problem.slug}
-                  </p>
-                </div>
-
-                <span className="text-sm">
-                  {difficultyLabel(problem.difficulty)}
-                </span>
-              </Link>
-            ))
-          )}
+            <div className="inline-flex items-center gap-2 text-xs text-[var(--muted)]">
+              <Sparkles className="size-4 text-[var(--secondary)]" />
+              {problems.length} published
+            </div>
+          </div>
         </div>
       </section>
+
+      <section className="mx-auto max-w-7xl px-6 py-10 sm:py-12">
+        <ProblemList initialProblems={problems} />
+      </section>
+      <Footer />
     </main>
   );
 }
