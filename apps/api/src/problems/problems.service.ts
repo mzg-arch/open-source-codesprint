@@ -7,12 +7,13 @@ export class ProblemsService {
   constructor(private readonly prisma: PrismaService) {}
 
   create(createProblemDto: CreateProblemDto) {
-    const { examples, starterCode, testCases, ...problemData } =
+    const { examples, starterCode, testCases, parameters, ...problemData } =
       createProblemDto;
 
     return this.prisma.problem.create({
       data: {
         ...problemData,
+        parameters: parameters.map(({ name, type }) => ({ name, type })),
         examples: {
           create: examples,
         },

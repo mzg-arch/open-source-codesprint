@@ -8,16 +8,15 @@ datasource db {
 }
 
 model User {
-  id           String       @id @default(cuid())
-  email        String       @unique
-  username     String       @unique
+  id           String   @id @default(cuid())
+  email        String   @unique
+  username     String   @unique
   passwordHash String
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime     @updatedAt
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
-  submissions  Submission[]
+  submissions Submission[]
 }
-
 
 enum Difficulty {
   EASY
@@ -26,17 +25,20 @@ enum Difficulty {
 }
 
 model Problem {
-  id          String     @id @default(cuid())
-  title       String
-  slug        String     @unique
-  description String
-  difficulty  Difficulty
-  constraints String?
-  timeLimit   Int        @default(2000)
-  memoryLimit Int        @default(256)
-  isPublished Boolean    @default(false)
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  id           String     @id @default(cuid())
+  title        String
+  slug         String     @unique
+  description  String
+  difficulty   Difficulty
+  constraints  String?
+  timeLimit    Int        @default(2000)
+  memoryLimit  Int        @default(256)
+  functionName String
+  parameters   Json
+  returnType   String
+  isPublished  Boolean    @default(false)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
 
   examples    ProblemExample[]
   starterCode StarterCode[]
@@ -75,7 +77,6 @@ model TestCase {
   problem Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
 }
 
-
 enum SubmissionStatus {
   PENDING
   RUNNING
@@ -87,19 +88,18 @@ enum SubmissionStatus {
 }
 
 model Submission {
-  id          String           @id @default(cuid())
-  userId      String
-  problemId   String
-  language    String
-  sourceCode  String
-  status      SubmissionStatus @default(PENDING)
-  runtimeMs   Int?
-  memoryKb    Int?
-  output      String?
-  createdAt   DateTime         @default(now())
-  updatedAt   DateTime         @updatedAt
+  id         String           @id @default(cuid())
+  userId     String
+  problemId  String
+  language   String
+  sourceCode String
+  status     SubmissionStatus @default(PENDING)
+  runtimeMs  Int?
+  memoryKb   Int?
+  output     String?
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
 
-  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  problem     Problem          @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  problem Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
 }
-

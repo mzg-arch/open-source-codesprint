@@ -28,11 +28,19 @@ export type TestCase = {
   isHidden: boolean;
 };
 
+export type ExecutionParameter = {
+  name: string;
+  type: string;
+};
+
 export type Problem = ProblemSummary & {
   description: string;
   constraints?: string | null;
   timeLimit: number;
   memoryLimit: number;
+  functionName: string;
+  parameters: ExecutionParameter[];
+  returnType: string;
   examples: ProblemExample[];
   starterCode: StarterCode[];
   testCases: TestCase[];

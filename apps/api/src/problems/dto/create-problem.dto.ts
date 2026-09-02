@@ -43,6 +43,14 @@ class TestCaseDto {
   isHidden?: boolean;
 }
 
+class ExecutionParameterDto {
+  @IsString()
+  name!: string;
+
+  @IsString()
+  type!: string;
+}
+
 export class CreateProblemDto {
   @IsString()
   title!: string;
@@ -69,6 +77,17 @@ export class CreateProblemDto {
   @IsInt()
   @Min(1)
   memoryLimit?: number;
+
+  @IsString()
+  functionName!: string;
+
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ExecutionParameterDto)
+  parameters!: ExecutionParameterDto[];
+
+  @IsString()
+  returnType!: string;
 
   @IsOptional()
   @IsBoolean()
