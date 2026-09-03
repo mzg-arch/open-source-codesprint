@@ -2,13 +2,17 @@ import { Clock3, Terminal } from "lucide-react";
 
 import type { Submission } from "@/types/submission";
 
+import {
+  parseReturnValidationFeedback,
+  ReturnValidationFeedback,
+} from "./ReturnValidationFeedback";
 import { SubmissionStatus } from "./SubmissionStatus";
 
-export function SubmissionResult({
-  submission,
-}: {
-  submission: Submission;
-}) {
+export function SubmissionResult({ submission }: { submission: Submission }) {
+  const returnValidationFeedback = parseReturnValidationFeedback(
+    submission.output,
+  );
+
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -20,7 +24,9 @@ export function SubmissionResult({
           </span>
         )}
       </div>
-      {submission.output && (
+      {returnValidationFeedback ? (
+        <ReturnValidationFeedback feedback={returnValidationFeedback} />
+      ) : submission.output ? (
         <div>
           <p className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-[var(--muted)]">
             <Terminal className="size-3.5" />
@@ -30,7 +36,7 @@ export function SubmissionResult({
             {submission.output}
           </pre>
         </div>
-      )}
+      ) : null}
     </div>
   );
 }

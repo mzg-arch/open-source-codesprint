@@ -4,6 +4,7 @@ import { PrismaClient, SubmissionStatus } from "@codesprint/database";
 import { Worker } from "bullmq";
 
 import { getRunner } from "./runner/get-runner";
+import { formatReturnValidationFeedback } from "./runner/format-return-validation-feedback";
 import { parseExecutionContract } from "./runner/parse-execution-contract";
 import { serializedResultsMatch } from "./runner/javascript/serialize-result";
 
@@ -128,6 +129,18 @@ async function processSubmission(submissionId: string) {
           SubmissionStatus.RUNTIME_ERROR,
           totalRuntimeMs,
           result.stderr || "Process exited with code " + result.exitCode,
+        );
+        return;
+      }
+
+      if (result.returnValidationIssue) {
+        await finish(
+          SubmissionStatus.WRONG_ANSWER,
+          totalRuntimeMs,
+          formatReturnValidationFeedback(
+            result.returnValidationIssue,
+            contract,
+          ),
         );
         return;
       }

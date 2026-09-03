@@ -18,12 +18,20 @@ export type PreparedProgram = {
   sourceCode: string;
 };
 
+export type ReturnValidationIssue = {
+  code: "MISSING_RETURN" | "WRONG_RETURN_TYPE" | "NON_SERIALIZABLE_RETURN";
+  expectedType: string;
+  receivedType: string;
+  usedConsoleLog: boolean;
+};
+
 export type ExecutionResult = {
   stdout: string;
   stderr: string;
   exitCode: number | null;
   timedOut: boolean;
   runtimeMs: number;
+  returnValidationIssue?: ReturnValidationIssue;
 };
 
 export type PrepareProgramOptions = {
